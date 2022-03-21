@@ -36,7 +36,8 @@ class MainActivity : AppCompatActivity() {
     private fun pickImage() {
         pickImageLauncher.launch(
             Intent(MediaStore.ACTION_PICK_IMAGES).apply {
-                //putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, 1)
+                // DP2時点ではEXTRA_PICK_IMAGES_MAXに1を指定すると正常動作しなくなる
+                putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, 1)
             }
         )
     }
