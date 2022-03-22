@@ -2,6 +2,10 @@
 
 ## Privacy
 
+### Notification permission affects foreground service appearance
+
+ユーザーが通知権限を拒否した場合、これらのForeground Serviceに関連する通知はFGS Task Managerに表示されるが通知ドロワーに表示されることはない。
+
 ### New runtime permission for nearby Wi-Fi devices
 
 以前のバージョンでホットスポット、Wi-Fi Direct接続、Wi-Fi RTTなどのユースケースを完了するためには`ACCESS_FINE_LOCATION`を扶養する必要がある。
@@ -14,22 +18,44 @@ Note: この変更は`ACCESS_FINE_LOCATION`を必要とするWi-Fi APIを呼び�
 
 詳細は、https://developer.android.com/about/versions/13/features/nearby-wifi-devices-permission を参照
 
+### Use of body sensors in the background requires new permission
+
+Android 13では心拍数、体温、血中酸素濃度などのセンサーに対して「利用中」アクセスの概念が導入されている。これはAndroid 10で導入された位置情報に対するものと類似している。
+
+もし、Android 13をターゲットにする場合は、バックグラウンドでこれらの情報にアクセスが必要な場合は、`BODY_SENSORS`だけでなく`BODY_SENSORS_BACKGROUND`を宣言する必要がある。
+
+Note：これは`hard-restricted`と呼ばれデバイスのインストーラがアプリの権限を許可するまでアプリが保持することはできない。詳細は https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/permission/Permissions.md#restricted-permissions
+
 ## Security
 
 ### Intent filters block non-matching intents
 
-既存の`intent filter`はコンポーネントに配信されるIntentをフィルタリングせずに暗黙的Intentの解決時のみに利用され直感的ではない。アプリが後悔したコンポーネントをマニフェストに登録し、`<intent-filter>`を追加するとコンポーネントは任意の`intent filter`に一致しないものでもIntentで起動できるようになる。
+アプリがAndroid 13以降をターゲットとする他のアプリのエクスポートされたコンポーネントにIntentを送信すると受信アプリの`<intent-filter>`要素にマッチする場合にのみ`Intent`が配信される。つまり以下を除きマッチされない`Intent`を全てブロックする。
 
-コンポーネントが開始される時にIntentをチェックしないと状況によってはアプリの内部であるはずの機能を外部アプリがトリガーすることが可能になってしまう。
+* 他のアプリのコンポーネントに送信された`Intent`でそれらのコンポーネントが`intent-filter`を宣言していない場合
+* 自分のアプリ内の他のコンポーネントに送信された`Intent`
+* システムから送信された`Intent`
+* ルートレベルの特権を持つユーザーから送信された`Intent`
 
-変更前はコンポーネントが宣言した`<intent-filter>`要素に一致しないIntentに配信する方法は以下の2通り
+### Safer exporting of context-registered receivers
 
-1. 明示的なIntent
-1. Intent Selector：一致するIntentをメインIntentのセレクタとして設定した場合、メインIntentが常に配信される
+ランタイムレシーバーの安全性を高めるためAndroid 13ではアプリ内の特定のBroadcastReceiverをエクスポートしてデバイス上の他のアプリから見えるようにするかどうかを指定することができる。BroadcastReceiverがエクスポートされると他のアプリが保護されていないブロードキャストがアプリに送信される可能性がある。Android 13意向を対象とするアプリで利用可能になり、アプリの脆弱性の主な原因の1つを防ぐのに役立つ。
 
-Android 13以降をターゲットするアプリでは外部アプリから発信されたすべてのIntentが宣言された`<intent-filter>`にマッチする場合のみ配信されるようになる。
+Androidの以前のバージョンではデバイス上の任意のアプリはレシーバーが署名許可によって保護されていない限り動的に登録されたレシーバーに送信することができた。
 
-マッチしないIntentはブロックされるが、Intentのマッチングが矯正されない例外は以下。
+安全性を高めるために以下に従う。
 
-* intent filter を宣言していないコンポーネントに配信されるIntent
-* 同一アプリ内、スステム、ルートから発信されたIntent
+* `DYNAMIC_RECEIVER_EXPLICIT_EXPORT_REQUIRED`を有効にする
+* アプリの各BroadcastReciverで他のアプリがそのあぷりに送信できるかどうかを明示的に指定する
+
+Caution：`DYNAMIC_RECEIVER_EXPLICIT_EXPORT_REQUIRED`を有効にすると、`RECEIVER_EXPORTED`か`RECEIVER_NOT_EXPORTED`を指定する必要がある。指定していない場合は`SecurityException`がスローされる。
+
+この状況を検出するためにlintルールがあり、今後のリリースでチェックされる予定。
+
+## Performance and battery
+
+## Battery Resource Utilization
+
+Android 13をターゲットとするアプリでユーザーがバックグラウンドでのバッテリー使用を制限状態にした場合、システムはブロードキャストに関連するいくつかの制限を適用する。
+
+詳細は https://developer.android.com/about/versions/13/changes/battery#restricted-background-battery-usage
