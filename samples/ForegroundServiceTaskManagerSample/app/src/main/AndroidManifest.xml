@@ -12,7 +12,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ForegroundServiceTaskManagerSample">
         <service
-            android:name=".LoggingForegroundService"
+            android:name=".LoggingForegroundService1"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".LoggingForegroundService2"
             android:enabled="true"
             android:exported="true" />
 

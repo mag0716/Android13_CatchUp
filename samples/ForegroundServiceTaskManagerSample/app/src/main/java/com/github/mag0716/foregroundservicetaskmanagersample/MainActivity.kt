@@ -11,12 +11,22 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         findViewById<Button>(R.id.start_service1_button).setOnClickListener {
-
+            val intent = Intent(this, LoggingForegroundService1::class.java)
             startService(intent)
         }
 
         findViewById<Button>(R.id.stop_service1_button).setOnClickListener {
-            val intent = Intent(this, LoggingForegroundService::class.java)
+            val intent = Intent(this, LoggingForegroundService1::class.java)
+            stopService(intent)
+        }
+
+        findViewById<Button>(R.id.start_service2_button).setOnClickListener {
+            val intent = Intent(this, LoggingForegroundService2::class.java)
+            startService(intent)
+        }
+
+        findViewById<Button>(R.id.stop_service2_button).setOnClickListener {
+            val intent = Intent(this, LoggingForegroundService2::class.java)
             stopService(intent)
         }
     }

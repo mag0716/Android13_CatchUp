@@ -12,7 +12,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.*
 
-class LoggingForegroundService : Service() {
+class LoggingForegroundService1 : Service() {
 
     private val serviceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
@@ -28,12 +28,12 @@ class LoggingForegroundService : Service() {
         }
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("LoggingForegroundService")
+            .setContentTitle("LoggingForegroundService1")
             .setContentText("Logging...")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(openIntent)
             .build()
-        startForeground(100, notification)
+        startForeground(1, notification)
         startLogging()
 
         return START_STICKY
@@ -66,7 +66,7 @@ class LoggingForegroundService : Service() {
         serviceScope.launch {
             while (isActive) {
                 delay(1000)
-                Log.d("xxx", "Logging...")
+                Log.d("xxx", "[Service1]Logging...")
             }
         }
     }
