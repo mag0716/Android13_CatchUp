@@ -10,12 +10,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<Button>(R.id.start_button).setOnClickListener {
-            val intent = Intent(this, LoggingForegroundService::class.java)
+        findViewById<Button>(R.id.start_service1_button).setOnClickListener {
+
             startService(intent)
         }
 
-        findViewById<Button>(R.id.stop_button).setOnClickListener {
+        findViewById<Button>(R.id.stop_service1_button).setOnClickListener {
             val intent = Intent(this, LoggingForegroundService::class.java)
             stopService(intent)
         }
